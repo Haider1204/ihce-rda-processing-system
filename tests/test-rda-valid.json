@@ -1,0 +1,31 @@
+{
+  "resourceType": "ClinicalDocument",
+  "patient": {
+    "id": "CC-12345678",
+    "name": "Juan Pérez",
+    "birthDate": "1985-03-15",
+    "gender": "male"
+  },
+  "encounter": {
+    "id": "ENC-001",
+    "date": "2024-12-10T10:30:00Z",
+    "facility": {
+      "id": "HSP-001",
+      "name": "Hospital San José"
+    }
+  },
+  "diagnosis": [
+    {
+      "code": "J00",
+      "display": "Rinofaringitis aguda",
+      "system": "ICD-10"
+    }
+  ],
+  "medications": [
+    {
+      "name": "Acetaminofén",
+      "dosage": "500mg",
+      "frequency": "cada 8 horas"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+config:
+  target: "https://8olfml642c.execute-api.us-east-1.amazonaws.com/prod"
+  phases:
+    # Fase 1: Warm-up (calentamiento)
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm-up phase"
+    
+    # Fase 2: Carga moderada
+    - duration: 120
+      arrivalRate: 10
+      name: "Moderate load"
+    
+    # Fase 3: Carga alta
+    - duration: 120
+      arrivalRate: 25
+      name: "High load"
+    
+    # Fase 4: Pico de tráfico
+    - duration: 60
+      arrivalRate: 50
+      name: "Peak load"
+    
+    # Fase 5: Cool-down
+    - duration: 60
+      arrivalRate: 5
+      name: "Cool-down"
+
+  payload:
+    path: "./test-payloads.csv"
+    fields:
+      - patient_id
+      - patient_name
+      - diagnosis_code
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "Submit RDA"
+    weight: 70
+    flow:
+      - post:
+          url: "/rda"
+          json:
+            resourceType: "ClinicalDocument"
+            patient:
+              id: "CC-{{ patient_id }}"
+              name: "{{ patient_name }}"
+              birthDate: "1985-03-15"
+              gender: "male"
+            encounter:
+              id: "ENC-{{ $randomString() }}"
+              date: "{{ $timestamp() }}"
+              facility:
+                id: "HSP-001"
+                name: "Hospital Test Load"
+            diagnosis:
+              - code: "{{ diagnosis_code }}"
+                display: "Test Diagnosis"
+                system: "ICD-10"
+            medications:
+              - name: "Test Med"
+                dosage: "500mg"
+                frequency: "cada 8 horas"
+          capture:
+            - json: "$.messageId"
+              as: "messageId"
+          expect:
+            - statusCode: 202
+
+  - name: "Query RDA by Patient"
+    weight: 20
+    flow:
+      - get:
+          url: "/rda/CC-{{ patient_id }}"
+          expect:
+            - statusCode: 200
+
+  - name: "Query all RDAs"
+    weight: 10
+    flow:
+      - get:
+          url: "/rda"
+          expect:
+            - statusCode: 200

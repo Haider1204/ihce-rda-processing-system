@@ -1,0 +1,17 @@
+[Unit]
+Description=RDA Worker Service
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/home/ec2-user/rda-worker
+ExecStart=/usr/bin/python3.11 /home/ec2-user/rda-worker/worker.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+Environment="QUEUE_URL=https://sqs.us-east-1.amazonaws.com/YOUR-ACCOUNT/rda-processing-queue"
+
+[Install]
+WantedBy=multi-user.target
